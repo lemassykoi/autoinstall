@@ -1,0 +1,118 @@
+#cloud-config
+autoinstall:
+  version: 1
+  apt:
+    geoip: true
+    preserve_sources_list: false
+    primary:
+    - arches: [amd64, i386]
+      uri: http://fr.archive.ubuntu.com/ubuntu
+    - arches: [default]
+      uri: http://ports.ubuntu.com/ubuntu-ports
+  identity:
+    hostname: ubuntu-server
+    password: $6$saltsalt$c6Bt.G5395PCp0U1/VORiKQsb1bZt.mZJ./ML4Wjce4/eCzCvMuYuhQnirds1j8FGU9OROQt6S3Q8LzI6iczi1
+    username: clement
+  keyboard: {layout: fr, toggle: null, variant: 'azerty'}
+  locale: fr_FR.UTF-8
+  network:
+    network:
+      version: 2
+      ethernets:
+        zz-all-en:
+            match:
+                name: "en*"
+            link-local: [ ipv4 ]
+            dhcp4: true
+            critical: true
+            dhcp-identifier: mac
+        zz-all-eth:
+            match:
+                name: "eth*"
+            link-local: [ ipv4 ]
+            dhcp4: true
+            critical: true
+            dhcp-identifier: mac
+  ssh:
+    allow-pw: false
+    authorized-keys: []
+    install-server: true
+
+  storage:
+    #### Don't create /root/swap.img file
+    swap:
+      size: 0
+    config:
+    #### prep system disks
+    - type: disk
+      id: disk-sda
+      path: /dev/sda
+      preserve: false
+      wipe: superblock-recursive
+      ptable: gpt
+      grub_device: true
+     #### disk partitions
+    - type: partition
+      number: 1
+      id: bios_boot_part   # required by GRUB on first disk
+      size: 1MB
+      device: disk-sda
+      flag: bios_grub
+    - type: partition
+      number: 2
+      id: boot_part       # /boot partition
+      size: 1G
+      device: disk-sda
+      preserve: false
+    - type: partition
+      number: 3
+      id: lvm_part        # add remaining space to LVM
+      size: -1
+      device: disk-sda
+      preserve: false
+     #### LVM volume group and logical volumes
+    - type: lvm_volgroup
+      id: vg0
+      name: vg0
+      devices:
+        - lvm_part
+    - type: lvm_partition
+      id: lvm_swap        # create swap partition on lvm
+      volgroup: vg0
+      name: swap
+      size: 8G
+    - type: lvm_partition
+      id: lvm_root        # create / partition on lvm, all available space
+      volgroup: vg0
+      name: root
+      size: -1
+    #### Format the filesystems
+    - type: format
+      id: fs_boot_part
+      fstype: ext4
+      volume: boot_part
+    - type: format
+      id: fs_root
+      fstype: ext4
+      volume: lvm_root
+    - type: format
+      id: fs_swap
+      fstype: swap
+      volume: lvm_swap
+    #### Mount the filesystems
+    - type: mount
+      id: mount_boot
+      device: fs_boot_part
+      path: /boot
+    - type: mount
+      id: mount_root
+      device: fs_root
+      path: /
+    - type: mount
+      id: mount_swap
+      device: fs_swap
+      path: none
+  #### POST Install commands
+  late-commands:   
+    - sed -i 's|^root:.:|root:$6$saltsalt$c6Bt.D5395PCp0U1/VORiKQsb1bZt.mZJ./NU4Wjce4/eCzCvMuYuhSnirds1j8FGU9OROQt6S3Q8LzI6iczi1:|' /target/etc/shadow
+    - sed -ie 's/GRUB_TIMEOUT=.\*/GRUB_TIMEOUT=5/' /target/etc/default/grub
