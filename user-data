@@ -28,14 +28,14 @@ autoinstall:
         zz-all-en:
             match:
                 name: "en*"
-            link-local: [ ipv4 ]
+            link-local: [ ]
             dhcp4: true
             critical: true
             dhcp-identifier: mac
         zz-all-eth:
             match:
                 name: "eth*"
-            link-local: [ ipv4 ]
+            link-local: [ ]
             dhcp4: true
             critical: true
             dhcp-identifier: mac
