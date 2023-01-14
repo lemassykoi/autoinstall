@@ -1,3 +1,9 @@
+#label ubuntu_focal_x64_autoinstall
+#	 menu label Ubuntu 20.04 AutoInstall
+#  KERNEL images/ubuntu/focal/vmlinuz
+#  INITRD images/ubuntu/focal/initrd
+#  APPEND vga=791 autoinstall root=/dev/ram0 ramdisk_size=1500000 ip=dhcp url=http://192.168.0.254/ubuntu/20/ubuntu-focal.iso ds=nocloud-net;s=http://192.168.0.254/ubuntu/20/
+#############
 #cloud-config
 autoinstall:
   version: 1
