@@ -120,5 +120,4 @@ autoinstall:
       path: none
   #### POST Install commands
   late-commands:   
-    - sed -i 's|^root:.:|root:$6$saltsalt$c6Bt.D5395PCp0U1/VORiKQsb1bZt.mZJ./NU4Wjce4/eCzCvMuYuhSnirds1j8FGU9OROQt6S3Q8LzI6iczi1:|' /target/etc/shadow
     - sed -ie 's/GRUB_TIMEOUT=.\*/GRUB_TIMEOUT=5/' /target/etc/default/grub
